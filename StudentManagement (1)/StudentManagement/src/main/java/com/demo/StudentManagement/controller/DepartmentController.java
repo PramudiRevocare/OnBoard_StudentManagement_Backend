@@ -7,9 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.demo.StudentManagement.service.CourseService;
+import com.demo.StudentManagement.service.DepartmentService;
 import com.demo.StudentManagement.util.VarList;
-import com.demo.StudentManagement.dto.CourseDTO;
+import com.demo.StudentManagement.dto.DepartmentDTO;
 import com.demo.StudentManagement.dto.ResponseDTO;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,32 +20,32 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
-@RequestMapping("api/v1/courses")
-public class CourseController {
+@RequestMapping("api/v1/departments")
+public class DepartmentController {
 
     @Autowired
-    private CourseService courseService;
+    private DepartmentService departmentService;
 
      @Autowired
     private ResponseDTO responseDTO;
 
 
-    //build POST rest api for Student
+    //build POST rest api for Department
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    @PostMapping(value = "/saveCourse")
-    public ResponseEntity saveCourse(@RequestBody CourseDTO courseDTO){
+    @PostMapping(value = "/saveDepartment")
+    public ResponseEntity saveDepartment(@RequestBody DepartmentDTO departmentDTO){
         try{
-            String res = courseService.saveCourse(courseDTO);
+            String res = departmentService.saveDepartment(departmentDTO);
             if (res.equals("00")){
                 responseDTO.setCode(VarList.RSP_SUCCESS);
                 responseDTO.setMessage("success");
-                responseDTO.setContent(courseDTO);
+                responseDTO.setContent(departmentDTO);
                 return new ResponseEntity(responseDTO, HttpStatus.ACCEPTED);
 
             } else if (res.equals("04")){
                 responseDTO.setCode(VarList.RSP_DUPLICATED);
-                responseDTO.setMessage("Course already registered.");
-                responseDTO.setContent(courseDTO);
+                responseDTO.setMessage("Department already registered.");
+                responseDTO.setContent(departmentDTO);
                 return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
                 
             }else{
@@ -68,25 +68,25 @@ public class CourseController {
     }
 
 
-    // build PUT rest api for a Course
-    @PutMapping(value = "/updateCourse")
-    public ResponseEntity<ResponseDTO> updateCourse(@RequestBody CourseDTO courseDTO) {
+    // build PUT rest api for a Department
+    @PutMapping(value = "/updateDepartment")
+    public ResponseEntity<ResponseDTO> updateDepartment(@RequestBody DepartmentDTO departmentDTO) {
         try {
-            String res = courseService.updateCourse(courseDTO);
+            String res = departmentService.updateDepartment(departmentDTO);
             if (res.equals(VarList.RSP_SUCCESS)) {
                 responseDTO.setCode(VarList.RSP_SUCCESS);
-                responseDTO.setMessage("Course updated successfully.");
-                responseDTO.setContent(courseDTO);
+                responseDTO.setMessage("Department updated successfully.");
+                responseDTO.setContent(departmentDTO);
                 return new ResponseEntity<>(responseDTO, HttpStatus.OK);
             } 
             else if (res.equals(VarList.RSP_NO_DATA_FOUND)) {
                 responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
-                responseDTO.setMessage("Course not found.");
+                responseDTO.setMessage("Department not found.");
                 responseDTO.setContent(null);
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
             } else {
                 responseDTO.setCode(VarList.RSP_FAIL);
-                responseDTO.setMessage("Failed to update Course.");
+                responseDTO.setMessage("Failed to update Department.");
                 responseDTO.setContent(null);
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
@@ -100,14 +100,14 @@ public class CourseController {
 
 
 
-    // GET: Get All Courses
-    @GetMapping("/getAllCourses")
-    public ResponseEntity<ResponseDTO> getAllCourses() {
+    // GET: Get All Departments
+    @GetMapping("/getAllDepartments")
+    public ResponseEntity<ResponseDTO> getAllDepartments() {
         try {
-            List<CourseDTO> courses = courseService.getAllCourses();
+            List<DepartmentDTO> departments = departmentService.getAllDepartments();
             responseDTO.setCode(VarList.RSP_SUCCESS);
-            responseDTO.setMessage("Courses retrieved successfully.");
-            responseDTO.setContent(courses);
+            responseDTO.setMessage("Departments retrieved successfully.");
+            responseDTO.setContent(departments);
             return new ResponseEntity<>(responseDTO, HttpStatus.OK);
         } catch (Exception ex) {
             responseDTO.setCode(VarList.RSP_ERROR);
@@ -118,19 +118,19 @@ public class CourseController {
 
 
 
-    // GET: Get Course by ID
-    @GetMapping("/getCourse/{id}")
-    public ResponseEntity<ResponseDTO> getCourseById(@PathVariable int id) {
+    // GET: Get Department by ID
+    @GetMapping("/getDepartment/{id}")
+    public ResponseEntity<ResponseDTO> getDepartmentById(@PathVariable int id) {
         try {
-            CourseDTO courseDTO = courseService.getCourseById(id);
-            if (courseDTO != null) {
+            DepartmentDTO departmentDTO = departmentService.getDepartmentById(id);
+            if (departmentDTO != null) {
                 responseDTO.setCode(VarList.RSP_SUCCESS);
-                responseDTO.setMessage(" Course found.");
-                responseDTO.setContent(courseDTO);
+                responseDTO.setMessage(" Department found.");
+                responseDTO.setContent(departmentDTO);
                 return new ResponseEntity<>(responseDTO, HttpStatus.OK);
             } else {
                 responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
-                responseDTO.setMessage(" Course not found.");
+                responseDTO.setMessage(" Department not found.");
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
             }
         } catch (Exception ex) {
@@ -142,41 +142,18 @@ public class CourseController {
 
 
 
-    // GET: Get Course by Name
-    @GetMapping("/getCoursesByName/{name}")
-    public ResponseEntity<ResponseDTO> getCoursesByName(@PathVariable String name) {
+  // DELETE: Delete Department by ID
+    @DeleteMapping("/deleteDepartment/{id}")
+    public ResponseEntity<ResponseDTO> deleteDepartment(@PathVariable int id) {
         try {
-            List<CourseDTO> courses = courseService.getCoursesByName(name);
-            if (!courses.isEmpty()) {
-                responseDTO.setCode(VarList.RSP_SUCCESS);
-                responseDTO.setMessage("Course found.");
-                responseDTO.setContent(courses);
-                return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-            } else {
-                responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
-                responseDTO.setMessage("No course found with the given name.");
-                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
-            }
-        } catch (Exception ex) {
-            responseDTO.setCode(VarList.RSP_ERROR);
-            responseDTO.setMessage("Error: " + ex.getMessage());
-            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-
-  // DELETE: Delete Course by ID
-    @DeleteMapping("/deleteCourse/{id}")
-    public ResponseEntity<ResponseDTO> deleteCourse(@PathVariable int id) {
-        try {
-            String res = courseService.deleteCourse(id);
+            String res = departmentService.deleteDepartment(id);
             if (res.equals(VarList.RSP_SUCCESS)) {
                 responseDTO.setCode(VarList.RSP_SUCCESS);
-                responseDTO.setMessage("Course deleted successfully.");
+                responseDTO.setMessage("Department deleted successfully.");
                 return new ResponseEntity<>(responseDTO, HttpStatus.OK);
             } else {
                 responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
-                responseDTO.setMessage("Course not found.");
+                responseDTO.setMessage("Department not found.");
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
             }
         } catch (Exception ex) {
@@ -185,6 +162,9 @@ public class CourseController {
             return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+
 
     
     

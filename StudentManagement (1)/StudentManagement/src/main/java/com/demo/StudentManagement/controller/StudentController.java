@@ -30,6 +30,7 @@ public class StudentController {
 
 
     //build POST rest api for Student
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @PostMapping(value = "/saveStudent")
     public ResponseEntity saveStudent(@RequestBody StudentDTO studentDTO){
         try{
