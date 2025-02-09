@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.demo.StudentManagement.dto.ResponseDTO;
 import com.demo.StudentManagement.dto.StudentDTO;
 import com.demo.StudentManagement.service.StudentService;
@@ -31,6 +30,7 @@ public class StudentController {
 
 
     //build POST rest api for Student
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @PostMapping(value = "/saveStudent")
     public ResponseEntity saveStudent(@RequestBody StudentDTO studentDTO){
         try{
@@ -41,13 +41,15 @@ public class StudentController {
                 responseDTO.setContent(studentDTO);
                 return new ResponseEntity(responseDTO, HttpStatus.ACCEPTED);
 
-            } else if (res.equals("04")){
+            } 
+            else if (res.equals("04")){
                 responseDTO.setCode(VarList.RSP_DUPLICATED);
                 responseDTO.setMessage("Student already registered.");
                 responseDTO.setContent(studentDTO);
                 return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
                 
-            }else{
+            }
+            else{
                 responseDTO.setCode(VarList.RSP_FAIL);
                 responseDTO.setMessage("Error");
                 responseDTO.setContent(null);
@@ -78,18 +80,21 @@ public class StudentController {
                 responseDTO.setMessage("Student updated successfully.");
                 responseDTO.setContent(studentDTO);
                 return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-            } else if (res.equals(VarList.RSP_NO_DATA_FOUND)) {
+            } 
+            else if (res.equals(VarList.RSP_NO_DATA_FOUND)) {
                 responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
                 responseDTO.setMessage("Student not found.");
                 responseDTO.setContent(null);
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
-            } else {
+            } 
+            else {
                 responseDTO.setCode(VarList.RSP_FAIL);
                 responseDTO.setMessage("Failed to update student.");
                 responseDTO.setContent(null);
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
-        } catch (Exception ex) {
+        } 
+        catch (Exception ex) {
             responseDTO.setCode(VarList.RSP_ERROR);
             responseDTO.setMessage("Error: " + ex.getMessage());
             responseDTO.setContent(null);
@@ -108,7 +113,8 @@ public class StudentController {
             responseDTO.setMessage("Students retrieved successfully.");
             responseDTO.setContent(students);
             return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-        } catch (Exception ex) {
+        } 
+        catch (Exception ex) {
             responseDTO.setCode(VarList.RSP_ERROR);
             responseDTO.setMessage("Error: " + ex.getMessage());
             return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -127,7 +133,8 @@ public class StudentController {
                 responseDTO.setMessage("Student found.");
                 responseDTO.setContent(studentDTO);
                 return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-            } else {
+            } 
+            else {
                 responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
                 responseDTO.setMessage("Student not found.");
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
@@ -151,7 +158,8 @@ public class StudentController {
                 responseDTO.setMessage("Student found.");
                 responseDTO.setContent(studentDTO);
                 return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-            } else {
+            } 
+            else {
                 responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
                 responseDTO.setMessage("Student not found.");
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
@@ -175,7 +183,8 @@ public class StudentController {
                 responseDTO.setMessage("Students found.");
                 responseDTO.setContent(students);
                 return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-            } else {
+            }
+             else {
                 responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
                 responseDTO.setMessage("No students found with the given name.");
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
@@ -198,7 +207,8 @@ public class StudentController {
                 responseDTO.setCode(VarList.RSP_SUCCESS);
                 responseDTO.setMessage("Student deleted successfully.");
                 return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-            } else {
+            } 
+            else {
                 responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
                 responseDTO.setMessage("Student not found.");
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
