@@ -11,8 +11,6 @@ import com.demo.StudentManagement.service.CourseService;
 import com.demo.StudentManagement.util.VarList;
 import com.demo.StudentManagement.dto.CourseDTO;
 import com.demo.StudentManagement.dto.ResponseDTO;
-import com.demo.StudentManagement.dto.StudentDTO;
-
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

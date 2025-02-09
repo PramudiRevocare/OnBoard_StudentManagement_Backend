@@ -3,18 +3,15 @@ package com.demo.StudentManagement.service;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.demo.StudentManagement.dto.CourseDTO;
 import com.demo.StudentManagement.model.Course;
 import com.demo.StudentManagement.repository.CourseRepository;
 import com.demo.StudentManagement.util.VarList;
-
 import jakarta.transaction.Transactional;
 import java.util.Optional;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 @Service
 @Transactional
@@ -26,7 +23,6 @@ public class CourseService {
     @Autowired
     private ModelMapper modelMapper;
 
-    private static final Logger logger = LoggerFactory.getLogger(CourseService.class);
 
     public String saveCourse(CourseDTO courseDTO) {
         if (courseDTO.getId() != null && courseRepository.existsById(courseDTO.getId())) {
