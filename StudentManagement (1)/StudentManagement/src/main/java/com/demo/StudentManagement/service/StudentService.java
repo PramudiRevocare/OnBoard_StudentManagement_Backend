@@ -3,12 +3,10 @@ package com.demo.StudentManagement.service;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.demo.StudentManagement.dto.StudentDTO;
 import com.demo.StudentManagement.model.Student;
-import com.demo.StudentManagement.repositpry.StudentRepository;
+import com.demo.StudentManagement.repository.StudentRepository;
 import com.demo.StudentManagement.util.VarList;
-
 import jakarta.transaction.Transactional;
 import java.util.Optional;
 import java.util.List;
