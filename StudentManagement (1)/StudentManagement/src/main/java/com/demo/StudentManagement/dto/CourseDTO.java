@@ -12,5 +12,6 @@ public class CourseDTO {
     private String name;
     private String description;
     private Integer duration;
+    private Integer departmentId;
 
 }

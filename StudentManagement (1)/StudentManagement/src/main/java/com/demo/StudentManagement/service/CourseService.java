@@ -5,7 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.demo.StudentManagement.dto.CourseDTO;
 import com.demo.StudentManagement.model.Course;
+import com.demo.StudentManagement.model.Department;
 import com.demo.StudentManagement.repository.CourseRepository;
+import com.demo.StudentManagement.repository.DepartmentRepository;
+import com.demo.StudentManagement.repository.LecturerRepository;
 import com.demo.StudentManagement.util.VarList;
 import jakarta.transaction.Transactional;
 import java.util.Optional;
@@ -21,18 +24,27 @@ public class CourseService {
     private CourseRepository courseRepository;
 
     @Autowired
+    private DepartmentRepository departmentRepository;
+
+    @Autowired
+    private LecturerRepository lecturerRepository;
+
+    @Autowired
     private ModelMapper modelMapper;
 
 
-    public String saveCourse(CourseDTO courseDTO) {
-        if (courseDTO.getId() != null && courseRepository.existsById(courseDTO.getId())) {
-            return VarList.RSP_DUPLICATED; 
-        }
- 
-        Course course = modelMapper.map(courseDTO, Course.class);
-        course.setId(null);  
 
-        courseRepository.save(course); 
+    public String createCourse(CourseDTO courseDTO) {
+        Optional<Department> department = departmentRepository.findById(courseDTO.getDepartmentId());
+
+        if (department.isEmpty()) {
+            return VarList.RSP_NO_DATA_FOUND; 
+        }
+
+        Course course = modelMapper.map(courseDTO, Course.class);
+        course.setDepartment(department.get());
+        courseRepository.save(course);
+
         return VarList.RSP_SUCCESS; 
     }
 

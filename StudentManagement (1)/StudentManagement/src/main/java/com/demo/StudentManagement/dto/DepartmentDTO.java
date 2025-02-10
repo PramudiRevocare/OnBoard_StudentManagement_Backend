@@ -1,5 +1,6 @@
 package com.demo.StudentManagement.dto;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,7 @@ public class DepartmentDTO {
     private Integer id;
     private String name;
     private String description;
+    private List<StudentDTO> students;
  
 
 }

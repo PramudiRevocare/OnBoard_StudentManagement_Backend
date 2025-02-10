@@ -4,7 +4,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.demo.StudentManagement.dto.StudentDTO;
+import com.demo.StudentManagement.model.Course;
+import com.demo.StudentManagement.model.Department;
 import com.demo.StudentManagement.model.Student;
+import com.demo.StudentManagement.repository.CourseRepository;
+import com.demo.StudentManagement.repository.DepartmentRepository;
 import com.demo.StudentManagement.repository.StudentRepository;
 import com.demo.StudentManagement.util.VarList;
 import jakarta.transaction.Transactional;
@@ -19,19 +23,31 @@ public class StudentService {
     @Autowired
     private StudentRepository studentRepository;
 
+     @Autowired
+    private DepartmentRepository departmentRepository;
+
+    @Autowired
+    private CourseRepository courseRepository;
+
     @Autowired
     private ModelMapper modelMapper;
 
-    public String saveStudent(StudentDTO studentDTO) {
-        if (studentDTO.getId() != null && studentRepository.existsById(studentDTO.getId())) {
-            return VarList.RSP_DUPLICATED; 
-        }
- 
-        Student student = modelMapper.map(studentDTO, Student.class);
-        student.setId(null);  
 
-        studentRepository.save(student); 
-        return VarList.RSP_SUCCESS; 
+    public String saveStudent(StudentDTO studentDTO) {
+        Optional<Department> department = departmentRepository.findById(studentDTO.getDepartmentId());
+
+        if (department.isEmpty()) {
+            return VarList.RSP_NO_DATA_FOUND; 
+        }
+
+        List<Course> courses = courseRepository.findAllById(studentDTO.getCourseIds());
+
+        Student student = modelMapper.map(studentDTO, Student.class);
+        student.setDepartment(department.get());
+        student.setCourses(courses);
+        studentRepository.save(student);
+
+        return VarList.RSP_SUCCESS;
     }
 
 

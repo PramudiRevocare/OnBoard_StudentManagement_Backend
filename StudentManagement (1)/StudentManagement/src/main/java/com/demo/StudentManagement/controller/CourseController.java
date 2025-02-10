@@ -35,7 +35,7 @@ public class CourseController {
     @PostMapping(value = "/saveCourse")
     public ResponseEntity saveCourse(@RequestBody CourseDTO courseDTO){
         try{
-            String res = courseService.saveCourse(courseDTO);
+            String res = courseService.createCourse(courseDTO);
             if (res.equals("00")){
                 responseDTO.setCode(VarList.RSP_SUCCESS);
                 responseDTO.setMessage("success");

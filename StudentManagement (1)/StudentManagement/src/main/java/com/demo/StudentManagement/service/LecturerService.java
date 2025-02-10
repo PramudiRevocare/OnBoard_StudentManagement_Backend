@@ -4,7 +4,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.demo.StudentManagement.dto.LecturerDTO;
+import com.demo.StudentManagement.model.Course;
+import com.demo.StudentManagement.model.Department;
 import com.demo.StudentManagement.model.Lecturer;
+import com.demo.StudentManagement.repository.CourseRepository;
+import com.demo.StudentManagement.repository.DepartmentRepository;
 import com.demo.StudentManagement.repository.LecturerRepository;
 import com.demo.StudentManagement.util.VarList;
 import jakarta.transaction.Transactional;
@@ -19,19 +23,31 @@ public class LecturerService {
     @Autowired
     private LecturerRepository lecturerRepository;
 
+     @Autowired
+    private DepartmentRepository departmentRepository;
+
+    @Autowired
+    private CourseRepository courseRepository;
+
     @Autowired
     private ModelMapper modelMapper;
 
-    public String saveLecturer(LecturerDTO lecturerDTO) {
-        if (lecturerDTO.getId() != null && lecturerRepository.existsById(lecturerDTO.getId())) {
-            return VarList.RSP_DUPLICATED; 
-        }
- 
-        Lecturer lecturer = modelMapper.map(lecturerDTO, Lecturer.class);
-        lecturer.setId(null);  
 
-        lecturerRepository.save(lecturer); 
-        return VarList.RSP_SUCCESS; 
+    public String createLecturer(LecturerDTO lecturerDTO) {
+        Optional<Department> department = departmentRepository.findById(lecturerDTO.getDepartmentId());
+
+        if (department.isEmpty()) {
+            return VarList.RSP_NO_DATA_FOUND;
+        }
+
+        List<Course> courses = courseRepository.findAllById(lecturerDTO.getCourseIds());
+
+        Lecturer lecturer = modelMapper.map(lecturerDTO, Lecturer.class);
+        lecturer.setDepartment(department.get());
+        lecturer.setCourses(courses);
+        lecturerRepository.save(lecturer);
+
+        return VarList.RSP_SUCCESS;
     }
 
 
@@ -73,8 +89,15 @@ public class LecturerService {
     }
 
 
-    public List<LecturerDTO> getLecturersByDepartment(String department) {
-        List<Lecturer> lecturers = lecturerRepository.findByDepartmentIgnoreCase(department);
+    public List<LecturerDTO> getLecturersByDepartmentId(Integer departmentId) {
+        Optional<Department> department = departmentRepository.findById(departmentId);
+        
+        if (department.isEmpty()) {
+            return null; 
+        }
+
+        List<Lecturer> lecturers = lecturerRepository.findByDepartment(department.get());
+
         return lecturers.stream()
                 .map(lecturer -> modelMapper.map(lecturer, LecturerDTO.class))
                 .collect(Collectors.toList());
