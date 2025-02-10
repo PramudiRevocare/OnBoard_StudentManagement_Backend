@@ -64,11 +64,34 @@ public class StudentService {
     }
 
 
+    // public List<StudentDTO> getAllStudents() {
+    //     List<Student> studentList = studentRepository.findAll();
+    //     return studentList.stream()
+    //             .map(student -> modelMapper.map(student, StudentDTO.class))
+    //             .collect(Collectors.toList());
+    // }
     public List<StudentDTO> getAllStudents() {
         List<Student> studentList = studentRepository.findAll();
-        return studentList.stream()
-                .map(student -> modelMapper.map(student, StudentDTO.class))
-                .collect(Collectors.toList());
+
+        return studentList.stream().map(student -> {
+            StudentDTO studentDTO = modelMapper.map(student, StudentDTO.class);
+            
+            // Set department name
+            if (student.getDepartment() != null) {
+                studentDTO.setDepartmentName(student.getDepartment().getName());
+            }
+            
+            // Set course names
+            if (student.getCourses() != null && !student.getCourses().isEmpty()) {
+                studentDTO.setCourseNames(
+                    student.getCourses().stream()
+                            .map(course -> course.getName())
+                            .collect(Collectors.toList())
+                );
+            }
+
+            return studentDTO;
+        }).collect(Collectors.toList());
     }
 
 

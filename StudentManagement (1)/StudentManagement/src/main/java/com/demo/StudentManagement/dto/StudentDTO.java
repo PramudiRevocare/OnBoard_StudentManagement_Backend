@@ -16,6 +16,8 @@ public class StudentDTO {
     private String phone;
     private String address;
     private Integer departmentId;
+    private String departmentName;
     private List<Integer> courseIds;
+    private List<String> courseNames;
 
 }
