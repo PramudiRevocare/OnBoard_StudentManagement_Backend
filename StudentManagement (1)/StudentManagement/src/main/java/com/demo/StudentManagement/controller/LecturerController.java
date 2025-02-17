@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.demo.StudentManagement.dto.CourseDTO;
+import com.demo.StudentManagement.dto.DepartmentDTO;
 import com.demo.StudentManagement.dto.LecturerDTO;
-import com.demo.StudentManagement.dto.ResponseDTO;
 import com.demo.StudentManagement.service.LecturerService;
 import com.demo.StudentManagement.util.VarList;
 import java.util.List;
@@ -25,79 +27,27 @@ public class LecturerController {
     @Autowired
     private LecturerService lecturerService;
 
-    @Autowired
-    private ResponseDTO responseDTO;
-
 
 
     //build POST rest api for Lecturer
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @PostMapping(value = "/saveLecturer")
-    public ResponseEntity saveLecturer(@RequestBody LecturerDTO lecturerDTO){
-        try{
-            String res = lecturerService.createLecturer(lecturerDTO);
-            if (res.equals("00")){
-                responseDTO.setCode(VarList.RSP_SUCCESS);
-                responseDTO.setMessage("success");
-                responseDTO.setContent(lecturerDTO);
-                return new ResponseEntity(responseDTO, HttpStatus.ACCEPTED);
-
-            } 
-            else if (res.equals("04")){
-                responseDTO.setCode(VarList.RSP_DUPLICATED);
-                responseDTO.setMessage("Lecturer already registered.");
-                responseDTO.setContent(lecturerDTO);
-                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
-                
-            }
-            else{
-                responseDTO.setCode(VarList.RSP_FAIL);
-                responseDTO.setMessage("Error");
-                responseDTO.setContent(null);
-                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
-
-            }
-        } catch (Exception ex) {
-            responseDTO.setCode(VarList.RSP_ERROR);
-                responseDTO.setMessage(ex.getMessage());
-                responseDTO.setContent(null);
-                return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
-
-
-        }
-
+     public ResponseEntity<LecturerDTO> saveLecturer(@RequestBody LecturerDTO lecturerDTO) {
+        LecturerDTO savedLecturer = lecturerService.saveLecturer(lecturerDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedLecturer);
     }
 
 
 
-     // build PUT rest api for a Lecturer
-    @PutMapping(value = "/updateLecturer")
-    public ResponseEntity<ResponseDTO> updateLecturer(@RequestBody LecturerDTO lecturerDTO) {
+    //  // build PUT rest api for a Lecturer
+    @PutMapping(value = "/updateLecturer/{id}")
+    public ResponseEntity<LecturerDTO> updateLecturer(@PathVariable int id, @RequestBody LecturerDTO lecturerDTO) {
+        System.out.println("Received ID in Controller: " + id);
+
         try {
-            String res = lecturerService.updateLecturer(lecturerDTO);
-            if (res.equals(VarList.RSP_SUCCESS)) {
-                responseDTO.setCode(VarList.RSP_SUCCESS);
-                responseDTO.setMessage("Lecturer updated successfully.");
-                responseDTO.setContent(lecturerDTO);
-                return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-            } 
-            else if (res.equals(VarList.RSP_NO_DATA_FOUND)) {
-                responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
-                responseDTO.setMessage("Lecturer not found.");
-                responseDTO.setContent(null);
-                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
-            } 
-            else {
-                responseDTO.setCode(VarList.RSP_FAIL);
-                responseDTO.setMessage("Failed to update lecturer.");
-                responseDTO.setContent(null);
-                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
-            }
-        } catch (Exception ex) {
-            responseDTO.setCode(VarList.RSP_ERROR);
-            responseDTO.setMessage("Error: " + ex.getMessage());
-            responseDTO.setContent(null);
-            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+            LecturerDTO updatedLecturer = lecturerService.updateLecturer(id, lecturerDTO);
+            return ResponseEntity.ok(updatedLecturer);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 
@@ -105,17 +55,12 @@ public class LecturerController {
 
     // GET: Get All Lecturers
     @GetMapping("/getAllLecturers")
-    public ResponseEntity<ResponseDTO> getAllLecturers() {
-        try {
-            List<LecturerDTO> lecturers = lecturerService.getAllLecturers();
-            responseDTO.setCode(VarList.RSP_SUCCESS);
-            responseDTO.setMessage("Lecturers retrieved successfully.");
-            responseDTO.setContent(lecturers);
-            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-        } catch (Exception ex) {
-            responseDTO.setCode(VarList.RSP_ERROR);
-            responseDTO.setMessage("Error: " + ex.getMessage());
-            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        public ResponseEntity<List<LecturerDTO>> getAllLecturers() {
+        try{
+            List<LecturerDTO> lecturerDTO = lecturerService.getAllLecturers();
+            return ResponseEntity.ok(lecturerDTO);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 
@@ -123,24 +68,13 @@ public class LecturerController {
 
     // GET: Get lecturers by ID
     @GetMapping("/getLecturer/{id}")
-    public ResponseEntity<ResponseDTO> getLecturerById(@PathVariable int id) {
+    public ResponseEntity<LecturerDTO> getLecturerById(@PathVariable int id) {
+        System.out.println("Received ID in Controller: " + id);
         try {
             LecturerDTO lecturerDTO = lecturerService.getLecturerById(id);
-            if (lecturerDTO != null) {
-                responseDTO.setCode(VarList.RSP_SUCCESS);
-                responseDTO.setMessage("Lecturer found.");
-                responseDTO.setContent(lecturerDTO);
-                return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-            } 
-            else {
-                responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
-                responseDTO.setMessage("Lecturer not found.");
-                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
-            }
-        } catch (Exception ex) {
-            responseDTO.setCode(VarList.RSP_ERROR);
-            responseDTO.setMessage("Error: " + ex.getMessage());
-            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.ok(lecturerDTO);
+        } catch (RuntimeException e) { 
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 
@@ -151,52 +85,41 @@ public class LecturerController {
 
     // DELETE: Delete Student by ID
     @DeleteMapping("/deleteLecturer/{id}")
-    public ResponseEntity<ResponseDTO> deleteLecturer(@PathVariable int id) {
+    public ResponseEntity<String> deleteLecturer(@PathVariable int id) {
         try {
-            String res = lecturerService.deleteLecturer(id);
-            if (res.equals(VarList.RSP_SUCCESS)) {
-                responseDTO.setCode(VarList.RSP_SUCCESS);
-                responseDTO.setMessage("Lecturer deleted successfully.");
-                return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-            } 
-            else {
-                responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
-                responseDTO.setMessage("Lecturer not found.");
-                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
-            }
-        } catch (Exception ex) {
-            responseDTO.setCode(VarList.RSP_ERROR);
-            responseDTO.setMessage("Error: " + ex.getMessage());
-            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+            lecturerService.deleteLecturer(id);
+            return ResponseEntity.ok("Lecturer deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Lecturer not found");
         }
     }
 
 
-    // Get all lecturers by department ID
-    @GetMapping("/department/{departmentId}")
-    public ResponseEntity<?> getLecturersByDepartment(@PathVariable Integer departmentId) {
-        try {
-        List<LecturerDTO> lecturers = lecturerService.getLecturersByDepartmentId(departmentId);
+    // // Get all lecturers by department ID
+    // @GetMapping("/department/{departmentId}")
+    // public ResponseEntity<?> getLecturersByDepartment(@PathVariable Integer departmentId) {
+    //     try {
+    //     List<LecturerDTO> lecturers = lecturerService.getLecturersByDepartmentId(departmentId);
         
-        if (!lecturers.isEmpty()) {
-                        responseDTO.setCode(VarList.RSP_SUCCESS);
-                        responseDTO.setMessage("Lecturers found.");
-                        responseDTO.setContent(lecturers);
-                        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-                    } 
-                    else {
-                        responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
-                        responseDTO.setMessage("No lecturers found in this department.");
-                        return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
-                                }
-                            } catch (Exception ex) {
-                                responseDTO.setCode(VarList.RSP_ERROR);
-                                responseDTO.setMessage("Error: " + ex.getMessage());
-                                return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
-                            }
+    //     if (!lecturers.isEmpty()) {
+    //                     responseDTO.setCode(VarList.RSP_SUCCESS);
+    //                     responseDTO.setMessage("Lecturers found.");
+    //                     responseDTO.setContent(lecturers);
+    //                     return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    //                 } 
+    //                 else {
+    //                     responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
+    //                     responseDTO.setMessage("No lecturers found in this department.");
+    //                     return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+    //                             }
+    //                         } catch (Exception ex) {
+    //                             responseDTO.setCode(VarList.RSP_ERROR);
+    //                             responseDTO.setMessage("Error: " + ex.getMessage());
+    //                             return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+    //                         }
 
         
-    }
+    // }
 
 
 

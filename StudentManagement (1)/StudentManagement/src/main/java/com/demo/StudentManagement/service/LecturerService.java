@@ -3,6 +3,9 @@ package com.demo.StudentManagement.service;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.demo.StudentManagement.dto.CourseDTO;
+import com.demo.StudentManagement.dto.DepartmentDTO;
 import com.demo.StudentManagement.dto.LecturerDTO;
 import com.demo.StudentManagement.model.Course;
 import com.demo.StudentManagement.model.Department;
@@ -33,33 +36,40 @@ public class LecturerService {
     private ModelMapper modelMapper;
 
 
-    public String createLecturer(LecturerDTO lecturerDTO) {
-        Optional<Department> department = departmentRepository.findById(lecturerDTO.getDepartmentId());
-
-        if (department.isEmpty()) {
-            return VarList.RSP_NO_DATA_FOUND;
-        }
-
-        List<Course> courses = courseRepository.findAllById(lecturerDTO.getCourseIds());
-
+    public LecturerDTO saveLecturer(LecturerDTO lecturerDTO) {
         Lecturer lecturer = modelMapper.map(lecturerDTO, Lecturer.class);
-        lecturer.setDepartment(department.get());
-        lecturer.setCourses(courses);
-        lecturerRepository.save(lecturer);
-
-        return VarList.RSP_SUCCESS;
+        Lecturer savedLecturer = lecturerRepository.save(lecturer);
+        return modelMapper.map(savedLecturer, LecturerDTO.class);
     }
 
+    
+    public LecturerDTO updateLecturer(int id, LecturerDTO lecturerDTO) {
+        System.out.println("Received ID in Controller: " + id);
+        Optional<Lecturer> optionalLecturer = lecturerRepository.findById(id);
+        if (optionalLecturer.isPresent()) {
+            Lecturer lecturer = optionalLecturer.get();
+            lecturer.setName(lecturerDTO.getName());
+            lecturer.setPhone(lecturerDTO.getPhone());
+            lecturer.setEmail(lecturerDTO.getEmail());
 
-    public String updateLecturer(LecturerDTO lecturerDTO) {
-        Optional<Lecturer> existingLecturer = lecturerRepository.findById(lecturerDTO.getId());
+            if (lecturerDTO.getDepartmentId() != null) {
+                Department department = departmentRepository.findById(lecturerDTO.getDepartmentId())
+                        .orElseThrow(() -> new RuntimeException("Department not found"));
+                lecturer.setDepartment(department);
+            }
 
-        if (existingLecturer.isPresent()) {
-            Lecturer updatedLecturer = modelMapper.map(lecturerDTO, Lecturer.class);
-            lecturerRepository.save(updatedLecturer);
-            return VarList.RSP_SUCCESS;
+            if (lecturerDTO.getCourseIds() != null && !lecturerDTO.getCourseIds().isEmpty()) {
+                List<Course> courses = courseRepository.findAllById(lecturerDTO.getCourseIds());
+                if (courses.size() != lecturerDTO.getCourseIds().size()) {
+                    throw new RuntimeException("One or more courses not found");
+                }
+                lecturer.setCourses(courses);
+            }
+
+            Lecturer updatedLecturer = lecturerRepository.save(lecturer);
+            return modelMapper.map(updatedLecturer, LecturerDTO.class);
         } else {
-            return VarList.RSP_NO_DATA_FOUND; 
+            throw new RuntimeException("Lecturer not found");
         }
     }
 
@@ -74,19 +84,18 @@ public class LecturerService {
 
     public LecturerDTO getLecturerById(int id) {
         Optional<Lecturer> lecturer = lecturerRepository.findById(id);
-        return lecturer.map(value -> modelMapper.map(value, LecturerDTO.class)).orElse(null);
+        return lecturer.map(value -> modelMapper.map(value, LecturerDTO.class))
+        .orElseThrow(() -> new RuntimeException("lecturer not found"));
     }
 
 
-
-    public String deleteLecturer(int id) {
-        if (lecturerRepository.existsById(id)) {
-            lecturerRepository.deleteById(id);
-            return VarList.RSP_SUCCESS; 
-        } else {
-            return VarList.RSP_NO_DATA_FOUND; 
-        }
+    public void deleteLecturer(int id) {
+        Lecturer lecturer = lecturerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Lecturer not found"));
+        
+                lecturerRepository.delete(lecturer);
     }
+
 
 
     public List<LecturerDTO> getLecturersByDepartmentId(Integer departmentId) {

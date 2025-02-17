@@ -4,6 +4,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.demo.StudentManagement.dto.CourseDTO;
+import com.demo.StudentManagement.dto.DepartmentDTO;
 import com.demo.StudentManagement.model.Course;
 import com.demo.StudentManagement.model.Department;
 import com.demo.StudentManagement.repository.CourseRepository;
@@ -33,31 +34,34 @@ public class CourseService {
     private ModelMapper modelMapper;
 
 
-
-    public String createCourse(CourseDTO courseDTO) {
-        Optional<Department> department = departmentRepository.findById(courseDTO.getDepartmentId());
-
-        if (department.isEmpty()) {
-            return VarList.RSP_NO_DATA_FOUND; 
-        }
-
+     public CourseDTO createCourse(CourseDTO courseDTO) {
         Course course = modelMapper.map(courseDTO, Course.class);
-        course.setDepartment(department.get());
-        courseRepository.save(course);
-
-        return VarList.RSP_SUCCESS; 
+        Course savedCourse = courseRepository.save(course);
+        return modelMapper.map(savedCourse, CourseDTO.class);
     }
 
 
-    public String updateCourse(CourseDTO courseDTO) {
-        Optional<Course> existingCourse = courseRepository.findById(courseDTO.getId());
+    // public String updateCourse(CourseDTO courseDTO) {
+    //     Optional<Course> existingCourse = courseRepository.findById(courseDTO.getId());
 
-        if (existingCourse.isPresent()) {
-            Course updatedCourse = modelMapper.map(courseDTO, Course.class);
-            courseRepository.save(updatedCourse);
-            return VarList.RSP_SUCCESS;
+    //     if (existingCourse.isPresent()) {
+    //         Course updatedCourse = modelMapper.map(courseDTO, Course.class);
+    //         courseRepository.save(updatedCourse);
+    //         return VarList.RSP_SUCCESS;
+    //     } else {
+    //         return VarList.RSP_NO_DATA_FOUND; 
+    //     }
+    // }
+    public CourseDTO updateCourse(int id, CourseDTO courseDTO) {
+        Optional<Course> optionalCourse = courseRepository.findById(id);
+        if (optionalCourse.isPresent()) {
+            Course course = optionalCourse.get();
+            course.setName(courseDTO.getName());
+            course.setDescription(courseDTO.getDescription());
+            Course updatedCourse = courseRepository.save(course);
+            return modelMapper.map(updatedCourse, CourseDTO.class);
         } else {
-            return VarList.RSP_NO_DATA_FOUND; 
+            throw new RuntimeException("Course not found");
         }
     }
 
@@ -72,7 +76,8 @@ public class CourseService {
 
     public CourseDTO getCourseById(int id) {
         Optional<Course> course = courseRepository.findById(id);
-        return course.map(value -> modelMapper.map(value, CourseDTO.class)).orElse(null);
+        return course.map(value -> modelMapper.map(value, CourseDTO.class))
+        .orElseThrow(() -> new RuntimeException("Course not found"));
     }
 
   
@@ -84,13 +89,11 @@ public class CourseService {
     }
 
 
-    public String deleteCourse(int id) {
-        if (courseRepository.existsById(id)) {
-            courseRepository.deleteById(id);
-            return VarList.RSP_SUCCESS; 
-        } else {
-            return VarList.RSP_NO_DATA_FOUND; 
-        }
+    public void deleteCourse(int id) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+        
+                courseRepository.delete(course);
     }
 
 }
